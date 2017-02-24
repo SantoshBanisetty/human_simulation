@@ -1,0 +1,99 @@
+define block model
+(
+  size [0.500 0.500 0.750]
+  gui_nose 0
+)
+
+define topurg ranger
+(
+  sensor(
+    range_max 30.0
+    fov 270.25
+    samples 1081
+  )
+  # generic model properties
+  color "black"
+  size [ 0.050 0.050 0.100 ]
+)
+
+
+define topurg_h ranger
+(
+	sensor( 			
+    range [ 0.0  2.0 ]
+    fov 270
+   samples 27
+  )
+
+  # generic model properties
+  color "black"
+  size [ 0.05 0.05 0.1 ]
+)
+
+define pr2 position
+(
+  size [0.650 0.650 0.250]
+  origin [-0.050 0 0 0]
+  gui_nose 1
+  drive "omni"
+  topurg(pose [ 0.275 0 0 0 ])
+)
+
+define erratic position
+(
+  #size [0.415 0.392 0.25]
+  size [0.5 0.4 0.25]
+  origin [-0.05 0 0 0]
+  gui_nose 1
+  drive "diff"
+  topurg_h(pose [ 0.050 0.000 0 0.000 ])
+
+)
+
+define floorplan model
+(
+  # sombre, sensible, artistic
+  color "gray30"
+
+  # most maps will need a bounding box
+  boundary 1
+
+  gui_nose 0
+  gui_grid 0
+
+  gui_outline 0
+  gripper_return 0
+  fiducial_return 0
+  ranger_return 1
+)
+
+# set the resolution of the underlying raytrace model in meters
+resolution 0.02
+
+interval_sim 100  # simulation timestep in milliseconds
+
+window
+(
+  size [ 450.000 450.000 ]
+  center [-40.000 -22.000]
+  rotate [ 0.000 0.000 ]
+  scale 40.0
+
+  show_data 1              # 1=on 0=off
+)
+
+# load an environment bitmap
+floorplan
+(
+  name "SEM"
+  bitmap "SEM_rotated.pgm"
+  size [106.2 64.6 1.0]
+  pose [0.000 0.000 0.0000 0]
+)
+
+# throw in a robot
+pr2( pose [ -39.65 -22.14 0 90] name "pr2" color "blue")
+erratic( pose [ -29.91 -21.85 0 180.000] name "human" color "red")
+#erratic( pose [ -1.1 -1.10 0 180.000] name "parent" color "purple")
+#block( pose [ -2.924 2.020 0 180.000] color "blue")
+
