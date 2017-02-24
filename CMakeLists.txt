@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
  # stage
-  stage_ros
+  #stage_ros
   std_msgs
   tf
 )
