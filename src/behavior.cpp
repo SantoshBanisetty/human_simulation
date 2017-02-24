@@ -12,6 +12,7 @@
 #include "sensor_msgs/LaserScan.h"
 #include "nav_msgs/Odometry.h"
 #include <sstream>
+#include <string>
 
 #define PI 3.14
 
@@ -34,6 +35,7 @@ double degrees2radians(double angle_in_degrees);
 
 //Wanader without bumping into obstacles 
 void wander(void);
+void pass(void);
 
 int main(int argc, char **argv)
 {
@@ -53,7 +55,20 @@ int main(int argc, char **argv)
 
   while (ros::ok())
   {
-	wander();
+  	if (strcmp("wander", argv[1]) == 0)
+  	{
+  		wander();
+  	}
+  	else if (strcmp("pass", argv[1]) == 0)
+  	{
+  		pass();
+  	}
+  	else
+  	{
+  		ROS_INFO("Invalid argument!, %s", argv[1]);
+
+  	}
+	
   }
  
   ros::spin();
@@ -190,6 +205,32 @@ if ((intensities [center-1] == 1)||(intensities [center] == 1)||(intensities [ce
 		break;
 		}
 	}
+}
+else
+{
+move(1.0, 1.0, 1);
+}
+
+}
+
+/*
+ *"Passing behavior without hitting anything" implementation
+ */
+void pass(void)
+{
+ROS_INFO("I am [%s]", "passing");
+
+int samples = 27;
+int fov = 4.7123;
+double inc = 0.1745; // 270/27 degrees to radians
+int center = samples/2;
+/*if (mul == 1)// blocked around 270 degrees
+{
+rotate(1.0, 3.1415, 1); //about turn
+}*/
+if ((intensities [center-1] == 1)||(intensities [center] == 1)||(intensities [center+1] == 1))// obstacle in front
+{
+	move(0.0, 0.0, 1);
 }
 else
 {
