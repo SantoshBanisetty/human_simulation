@@ -43,7 +43,7 @@ int main(int argc, char **argv)
   if (argc != 2)
   {
   	ROS_INFO("In sufficient command line arguments");
-  	return 0;
+  	return -1;
   }
   ROS_INFO("I am [%s]", "In main"); 
   ros::init(argc, argv, "behavior");
@@ -66,7 +66,8 @@ int main(int argc, char **argv)
   	else
   	{
   		ROS_INFO("Invalid argument!, %s", argv[1]);
-
+  		ROS_INFO("\"wander and pass\" are valid");
+  		return -1;
   	}
 	
   }
