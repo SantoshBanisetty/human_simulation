@@ -16,6 +16,8 @@
 
 #define PI 3.14
 
+bool commandFlag = false;
+char* scenario;
 
 double intensities[27];
 double mul =1;
@@ -28,8 +30,10 @@ void rotate (double angular_speed, double relative_angle, bool clockwise);
 
 //Call back decleration for the laser messages
 void laserCallBack(const sensor_msgs::LaserScan::ConstPtr & laser_msg);
+//Command call back decleration
+void commandCallBack(const std_msgs::String::ConstPtr& msg);
 
-//Function declearations for equilidian distance and degrees to radians conversion
+//Function declerations for equilidian distance and degrees to radians conversion
 double getDistance(double x1, double y1, double x2, double y2);
 double degrees2radians(double angle_in_degrees);
 
@@ -45,32 +49,25 @@ int main(int argc, char **argv)
   	ROS_INFO("In sufficient command line arguments");
   	return -1;
   }
+  scenario = argv[1];
   ROS_INFO("I am [%s]", "In main"); 
   ros::init(argc, argv, "behavior");
   ros::NodeHandle behaviorNode;
  
   velocity_publisher = behaviorNode.advertise<geometry_msgs::Twist>("/robot_1/cmd_vel", 1000);
   ros::Subscriber laser = behaviorNode.subscribe("/robot_1/base_scan", 1, laserCallBack);
+  ros::Subscriber command = behaviorNode.subscribe("/navigation_command", 100, commandCallBack);
   ros::Rate loop_rate(100000);
 
-  while (ros::ok())
-  {
-  	if (strcmp("wander", argv[1]) == 0)
-  	{
-  		wander();
-  	}
-  	else if (strcmp("pass", argv[1]) == 0)
-  	{
-  		pass();
-  	}
-  	else
-  	{
-  		ROS_INFO("Invalid argument!, %s", argv[1]);
-  		ROS_INFO("\"wander and pass\" are valid");
-  		return -1;
-  	}
+
+  ROS_INFO("I heard in main: [%d]", commandFlag);
+  	
+  //while(ros::ok())
+  //{
+
+  //}
 	
-  }
+
  
   ros::spin();
 
@@ -173,6 +170,38 @@ for (int i=0; i<27; i++) // I need not loop to copy, I am not familiar with std:
 intensities [i]= laser_msg->intensities[i];
 mul = mul*intensities[i]; //check point if robot is blocked 270 degrees
 }
+if (commandFlag == true)
+  	{
+  		if (strcmp("wander", scenario) == 0)
+  		{
+  			wander();
+  		}
+  		else if (strcmp("pass", scenario) == 0)
+  		{
+  			pass();
+  		}
+  		else
+  		{
+  			ROS_INFO("Invalid argument!, %s", scenario);
+  			ROS_INFO("\"wander and pass\" are valid");
+  			//return -1;
+  		}
+  		
+	}
+  	else
+  	{
+  		ROS_INFO("errrrrrr");
+  	}
+}
+
+/*
+ * Listen to the start command. 
+ */
+void commandCallBack(const std_msgs::String::ConstPtr& msg)
+{
+  ROS_INFO("I heard: [%s]", msg->data.c_str());
+  commandFlag = true;
+  ROS_INFO("I heard: [%d]", commandFlag);
 }
 
 /*
