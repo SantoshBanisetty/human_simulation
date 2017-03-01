@@ -16,6 +16,9 @@
 
 #define PI 3.14
 
+#define LINEAR_SPEED 0.25
+#define ANGULAR_SPEED 1.0
+
 bool commandFlag = false;
 char* scenario;
 
@@ -79,12 +82,13 @@ int main(int argc, char **argv)
  *  a certain distance either forward or backward  
  */
 void move(double speed, double distance, bool isForward){
+    ROS_INFO("Linear speed is: %f", fabs(speed));
    geometry_msgs::Twist vel_msg;
    //set a random linear velocity in the x-axis and check condition for the direction
    if (isForward)
-	   vel_msg.linear.x =abs(speed);
+	   vel_msg.linear.x =fabs(speed);
    else
-	   vel_msg.linear.x =-abs(speed);
+	   vel_msg.linear.x =-fabs(speed);
    vel_msg.linear.y =0;
    vel_msg.linear.z =0;
    //set a random angular velocity in the y-axis
@@ -97,6 +101,7 @@ void move(double speed, double distance, bool isForward){
    ros::Rate loop_rate(100);
    //Condition to terminate if moved to the distance specified
    do{
+      ROS_INFO("velocity MSG: %f", vel_msg.linear.x);
 	   velocity_publisher.publish(vel_msg);
 	   double t1 = ros::Time::now().toSec();
 	   current_distance = speed * (t1-t0);
@@ -125,9 +130,9 @@ void rotate (double angular_speed, double relative_angle, bool clockwise){
 	   vel_msg.angular.y = 0;
 	   //Condition to rotate clockwise or counter-clockwise
            if (clockwise)
-	   		   vel_msg.angular.z =-abs(angular_speed);
+	   		   vel_msg.angular.z =-fabs(angular_speed);
 	   	   else
-	   		   vel_msg.angular.z =abs(angular_speed);
+	   		   vel_msg.angular.z =fabs(angular_speed);
 
 	   double t0 = ros::Time::now().toSec();
 	   double current_angle = 0.0;
@@ -217,7 +222,7 @@ double inc = 0.1745; // 270/27 degrees to radians
 int center = samples/2;
 if (mul == 1)// blocked around 270 degrees
 {
-rotate(1.0, 3.1415, 1); //about turn
+rotate(ANGULAR_SPEED, 3.1415, 1); //about turn
 }
 if ((intensities [center-1] == 1)||(intensities [center] == 1)||(intensities [center+1] == 1))// obstacle in front
 {
@@ -226,19 +231,19 @@ if ((intensities [center-1] == 1)||(intensities [center] == 1)||(intensities [ce
 	{
 		if(intensities [center - i] == 0)// no obstacle
 		{
-		rotate(1.0, (i+1)*inc, 1);
+		rotate(ANGULAR_SPEED, (i+1)*inc, 1);
 		break;
 		}
 		else if (intensities [center +i] == 0)// no obstacle
 		{
-		rotate(1.0, (i+1)*inc, 0);
+		rotate(ANGULAR_SPEED, (i+1)*inc, 0);
 		break;
 		}
 	}
 }
 else
 {
-move(1.0, 1.0, 1);
+move(LINEAR_SPEED, 1.0, 1);
 }
 
 }
@@ -264,7 +269,7 @@ if ((intensities [center-1] == 1)||(intensities [center] == 1)||(intensities [ce
 }
 else
 {
-move(1.0, 1.0, 1);
+move(LINEAR_SPEED, 0.25, 1);
 }
 
 }
